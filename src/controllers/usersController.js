@@ -12,12 +12,23 @@ export const getSingleUser = async (req, res) => {
 };
 
 export const createUser = async (req, res) => {
-  const newUser = await addUser(req.body);
+  const { name, email } = req.body;
+  if (!name || !email) {
+    return res.status(400).json({ message: "Nome ed email sono obbligatori" });
+  }
+
+  const newUser = await addUser({ name, email });
   res.status(201).json(newUser);
 };
 
 export const editUser = async (req, res) => {
   const id = parseInt(req.params.id);
+  const { name, email } = req.body;
+
+  if (!name && !email) {
+    return res.status(400).json({ message: "Inserisci almeno un campo da aggiornare" });
+  }
+
   const updated = await updateUser(id, req.body);
   updated ? res.json(updated) : res.status(404).json({ message: "Utente non trovato" });
 };

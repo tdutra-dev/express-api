@@ -2,19 +2,33 @@ import { promises as fs } from "fs";
 
 const DATA_FILE = "./src/data/users.json";
 
-// 🧠 Funzione helper per leggere i dati dal file
+// 🧠 Lettura sicura del file
 async function readData() {
-  const data = await fs.readFile(DATA_FILE, "utf-8");
-  return JSON.parse(data);
+  try {
+    const data = await fs.readFile(DATA_FILE, "utf-8");
+    return JSON.parse(data || "[]");
+  } catch (err) {
+    console.error("❌ Errore durante la lettura del file:", err.message);
+    // Se il file non esiste, inizializza con un array vuoto
+    if (err.code === "ENOENT") {
+      await fs.writeFile(DATA_FILE, "[]");
+      return [];
+    }
+    throw err;
+  }
 }
 
-// ✏️ Funzione helper per scrivere dati aggiornati nel file
+// ✏️ Scrittura sicura nel file
 async function writeData(data) {
-  await fs.writeFile(DATA_FILE, JSON.stringify(data, null, 2));
+  try {
+    await fs.writeFile(DATA_FILE, JSON.stringify(data, null, 2));
+  } catch (err) {
+    console.error("❌ Errore durante la scrittura del file:", err.message);
+    throw err;
+  }
 }
 
 // ✅ CRUD OPERATIONS
-
 export async function getUsers() {
   return await readData();
 }
@@ -26,7 +40,7 @@ export async function getUserById(id) {
 
 export async function addUser(user) {
   const users = await readData();
-  const newUser = { id: Date.now(), ...user }; // id unico
+  const newUser = { id: Date.now(), ...user };
   users.push(newUser);
   await writeData(users);
   return newUser;
