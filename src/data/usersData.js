@@ -1,31 +1,51 @@
-// Finto "database" in memoria
-let users = [
-  { id: 1, name: "Tendresse", email: "tendresse@example.com" },
-  { id: 2, name: "Paolo", email: "paolo@example.com" },
-  { id: 3, name: "Samuel", email: "samuel@example.com" },
-  { id: 4, name: "Matteo", email: "matteo@example.com" },
-];
+import { promises as fs } from "fs";
 
-// Funzioni helper per leggere e modificare i dati
-export const getUsers = () => users;
-export const getUserById = (id) => users.find((u) => u.id === id);
-export const addUser = (user) => {
-  user.id = users.length + 1;
-  users.push(user);
-  return user;
-};
-export const updateUser = (id, newData) => {
+const DATA_FILE = "./src/data/users.json";
+
+// 🧠 Funzione helper per leggere i dati dal file
+async function readData() {
+  const data = await fs.readFile(DATA_FILE, "utf-8");
+  return JSON.parse(data);
+}
+
+// ✏️ Funzione helper per scrivere dati aggiornati nel file
+async function writeData(data) {
+  await fs.writeFile(DATA_FILE, JSON.stringify(data, null, 2));
+}
+
+// ✅ CRUD OPERATIONS
+
+export async function getUsers() {
+  return await readData();
+}
+
+export async function getUserById(id) {
+  const users = await readData();
+  return users.find((u) => u.id === id);
+}
+
+export async function addUser(user) {
+  const users = await readData();
+  const newUser = { id: Date.now(), ...user }; // id unico
+  users.push(newUser);
+  await writeData(users);
+  return newUser;
+}
+
+export async function updateUser(id, newData) {
+  const users = await readData();
   const index = users.findIndex((u) => u.id === id);
-  if (index !== -1) {
-    users[index] = { ...users[index], ...newData };
-    return users[index];
-  }
-  return null;
-};
-export const deleteUser = (id) => {
+  if (index === -1) return null;
+  users[index] = { ...users[index], ...newData };
+  await writeData(users);
+  return users[index];
+}
+
+export async function deleteUser(id) {
+  const users = await readData();
   const index = users.findIndex((u) => u.id === id);
-  if (index !== -1) {
-    return users.splice(index, 1)[0];
-  }
-  return null;
-};
+  if (index === -1) return null;
+  const deleted = users.splice(index, 1)[0];
+  await writeData(users);
+  return deleted;
+}
