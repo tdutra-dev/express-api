@@ -1,18 +1,29 @@
 import express from "express";
 import usersRoutes from "./src/routes/usersRoutes.js";
+import { logger } from "./src/middleware/logger.js";
+import fs from "fs";
+import path from "path";
+import morgan from "morgan";
+
+app.use(morgan("dev"));
+
+const logStream = fs.createWriteStream(path.join("access.log"), { flags: "a" });
+app.use(morgan("combined", { stream: logStream }));
+
 
 const app = express();
-const PORT = 3000;
+app.use(express.json());
 
-app.use(express.json()); // per leggere JSON nel body
+// 🧭 Logga tutte le richieste
+app.use(logger);
+
+// Rotte principali
 app.use("/api/users", usersRoutes);
 
-// Middleware di gestione errori globali
+// Middleware errori globali (già fatto)
 app.use((err, req, res, next) => {
   console.error("🔥 Errore non gestito:", err.message);
   res.status(500).json({ message: "Errore interno del server" });
 });
 
-app.listen(PORT, () => {
-  console.log(`🚀 API Express in ascolto su http://localhost:${PORT}`);
-});
+app.listen(3000, () => console.log("🚀 Server in ascolto su http://localhost:3000"));
