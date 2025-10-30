@@ -1,0 +1,10 @@
+nohup: ignoring input
+🚀 Server in ascolto su http://localhost:3000
+✅ MongoDB connesso: localhost
+[2025-10-30T14:46:37.908Z] GET /api/users
+[2025-10-30T14:47:31.018Z] GET /api/users
+[2025-10-30T14:47:33.561Z] GET /api/users
+[2025-10-30T14:50:57.047Z] GET /api/users
+[2025-10-30T14:52:03.266Z] POST /api/users
+[2025-10-30T14:52:16.456Z] GET /api/users
+[2025-10-30T14:53:01.557Z] GET /api/users

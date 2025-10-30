@@ -1,5 +1,8 @@
 import "dotenv/config";
 import express from "express";
+import helmet from "helmet";
+import cors from "cors";
+import rateLimit from "express-rate-limit";
 import usersRoutes from "./src/routes/usersRoutes.js";
 import { logger } from "./src/middleware/logger.js";
 import { connectDB } from "./src/config/db.js";
@@ -12,6 +15,19 @@ connectDB();
 
 app.use(express.json());
 app.use(logger);
+app.use(helmet());
+app.use(cors({
+  origin: "*", // per ora aperto a tutti, poi si può restringere
+  methods: ["GET", "POST", "PUT", "DELETE"],
+}));
+
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minuti
+  max: 100, // massimo 100 richieste ogni 15 minuti per IP
+});
+
+app.use(limiter);
+
 app.use("/api/users", usersRoutes);
 
 // Middleware gestione errori

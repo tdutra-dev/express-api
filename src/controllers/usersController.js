@@ -2,8 +2,18 @@ import User from "../models/User.js";
 
 // GET /api/users
 export const listUsers = async (req, res) => {
-  const users = await User.find();
-  res.json(users);
+  const page = parseInt(req.query.page) || 1;
+  const limit = parseInt(req.query.limit) || 5;
+  const skip = (page - 1) * limit;
+
+  const users = await User.find().skip(skip).limit(limit);
+  const total = await User.countDocuments();
+
+  res.json({
+    page,
+    totalPages: Math.ceil(total / limit),
+    users,
+  });
 };
 
 // GET /api/users/:id
