@@ -1,5 +1,4 @@
 import "dotenv/config";
-import dotenv from "dotenv";
 import express from "express";
 import helmet from "helmet";
 import cors from "cors";
@@ -9,15 +8,10 @@ import { logger } from "./src/middleware/logger.js";
 import { connectDB } from "./src/config/db.js";
 
 const app = express();
-
-dotenv.config();
-
 const PORT = process.env.PORT || 3000;
 
 // connessione a MongoDB
 connectDB();
-
-const MONGO_URI = process.env.MONGO_URI;
 
 app.use(express.json());
 app.use(logger);
